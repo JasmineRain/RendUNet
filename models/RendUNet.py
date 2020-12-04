@@ -5,7 +5,7 @@ from models.RendPoint import sampling_points_v2, sampling_features
 from torchvision import models
 from torch.nn import Module, Conv2d, Parameter, Softmax
 
-__all__ = ['RendUNet_v10']
+__all__ = ['RendUNet']
 
 
 class ChannelSELayer(nn.Module):
@@ -126,10 +126,7 @@ class SegNet(nn.Module):
         super(SegNet, self).__init__()
 
         pretrained = models.resnet101(pretrained=pretrained, progress=True, replace_stride_with_dilation=[0, 1, 1])
-        pretrained.load_state_dict(torch.load("./resnet101-5d3b4d8f.pth"))
-
-        # pretrained = models.resnext101_32x8d(pretrained=pretrained, progress=True, replace_stride_with_dilation=[0, 1, 1])
-        # pretrained.load_state_dict(torch.load("./resnext101_32x8d-8ba56ff5.pth"))
+        # pretrained.load_state_dict(torch.load("./resnet101-5d3b4d8f.pth"))
 
         self.refine = RefineUnit(in_channel=3, out_channel=64, residual=False)
 
@@ -155,13 +152,6 @@ class SegNet(nn.Module):
 
         self.seg = nn.Sequential(nn.Dropout2d(0.1, False), nn.Conv2d(2048, 1, 1))
 
-        # # Attention
-        # self.att_r = ChannelSpatialSELayer(num_channels=64, reduction_ratio=1)
-        # self.att_0 = ChannelSpatialSELayer(num_channels=64, reduction_ratio=1)
-        # self.att_1 = ChannelSpatialSELayer(num_channels=256, reduction_ratio=1)
-        # self.att_2 = ChannelSpatialSELayer(num_channels=512, reduction_ratio=2)
-        # self.att_3 = ChannelSpatialSELayer(num_channels=1024, reduction_ratio=4)
-
     def forward(self, x):
         # encoder
         refine = self.refine(x)
@@ -172,12 +162,6 @@ class SegNet(nn.Module):
         x4 = self.layer4(x3)
 
         coarse = self.seg(self.att(x4))
-        # # Attention
-        # refine = self.att_r(refine)
-        # x0 = self.att_0(x0)
-        # x1 = self.att_1(x1)
-        # x2 = self.att_2(x2)
-        # x3 = self.att_3(x3)
 
         return refine, x0, x1, x2, x3, coarse
 
@@ -334,9 +318,9 @@ class RendNet(nn.Module):
         }
 
 
-class RendUNet_v10(nn.Module):
+class RendUNet(nn.Module):
     def __init__(self):
-        super(RendUNet_v10, self).__init__()
+        super(RendUNet, self).__init__()
         self.seg = SegNet(pretrained=False)
         self.rend = RendNet()
 

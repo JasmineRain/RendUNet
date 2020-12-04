@@ -7,5 +7,5 @@ from .SEUNet import *
 from .UNetPP import *
 from .UNet import *
 from .BASNet import *
-from .RendUNet_v10 import *
+from .RendUNet import *
 from .RefineNet import *

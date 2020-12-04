@@ -8,7 +8,7 @@ import torch.nn as nn
 from torch.optim import SGD, lr_scheduler
 from tqdm import tqdm
 from torch.utils.tensorboard import SummaryWriter
-from models import AUNet, AUNet_R16, DANet, R2UNet, SEUNet, UNetPP, UNet, RendDANet, RendUNet_v10
+from models import AUNet, AUNet_R16, DANet, R2UNet, SEUNet, UNetPP, UNet, RendDANet, RendUNet
 from data_loader import get_dataloader
 from util import dice_coeff, get_accuracy, get_specificity, get_sensitivity, get_precision, get_F1
 from loss import DiceLoss, MixLoss, MultiRendLoss_v10
@@ -41,13 +41,13 @@ def train_val(config):
     elif config.model_type == "UNet++":
         model = UNetPP()
     elif config.model_type == "DANet":
-        model = DANet(backbone='resnet101', nclass=1)
+        model = DANet(backbone='resnet101', nclass=config.output_ch)
     elif config.model_type == "AUNetR":
         model = AUNet_R16(n_classes=1, learned_bilinear=True)
     elif config.model_type == "RendDANet":
-        model = RendDANet(backbone='resnet101', nclass=1)
+        model = RendDANet(backbone='resnet101', nclass=config.output_ch)
     elif config.model_type == "RendUNet":
-        model = RendUNet_v10()
+        model = RendUNet()
     else:
         model = UNet()
 
